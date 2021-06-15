@@ -1,4 +1,4 @@
-﻿<#####################################################################################################################################
+<#####################################################################################################################################
 
     This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.  
     THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
@@ -24,7 +24,8 @@
     https://partner.microsoft.com/global/30000104 
 
 ######################################################################################################################################>
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Verbose
+
+
 [Cmdletbinding(DefaultParameterSetName="Default")]
 Param (
     # Parameter help description
@@ -84,8 +85,9 @@ The UWP app input file contains the list of almost all the UWP application packa
 The Store and a few others, such as Wallet, were left off intentionally.  Though it is possible to remove the Store app, 
 it is nearly impossible to get it back.  Please review the lists below and comment out or remove references to packages that you do not want to remove.
 #>
+
 BEGIN {
-    
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Verbose
     If (-not([System.Diagnostics.EventLog]::SourceExists("Virtual Desktop Optimization")))
     {
         # All VDOT main function Event ID's [1-9]
