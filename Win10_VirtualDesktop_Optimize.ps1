@@ -632,7 +632,7 @@ PROCESS {
     }
     Else
     {
-        write-host "Done Optim"
+        write-host "Done Optim with exit code $lastexitcode"
     }
     ########################  END OF SCRIPT  ########################
 }
