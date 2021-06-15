@@ -24,7 +24,7 @@
     https://partner.microsoft.com/global/30000104 
 
 ######################################################################################################################################>
-
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Verbose
 [Cmdletbinding(DefaultParameterSetName="Default")]
 Param (
     # Parameter help description
