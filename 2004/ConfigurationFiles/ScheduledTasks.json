@@ -121,11 +121,6 @@
     "Description": "Servicing task that may be better performed during maintenance windows"
   },
   {
-    "ScheduledTask": "StartupAppTask",
-    "VDIState": "Disabled",
-    "Description": "Scans startup entries and raises notification to the user if there are too many startup entries."
-  },
-  {
     "ScheduledTask": "WindowsActionDialog",
     "VDIState": "Disabled",
     "Description": "Location Notification"
