@@ -21,7 +21,7 @@
   },
   {
     "ScheduledTask": "FamilySafetyMonitor",
-    "VDIState": "Disabled",
+    "VDIState": "Enabled,
     "Description": "Initializes Family Safety monitoring and enforcement."
   },
   {
