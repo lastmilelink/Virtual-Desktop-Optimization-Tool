@@ -182,18 +182,17 @@ PROCESS {
                 {
                     try
                     {                
-                        #Write-EventLog -EventId 20 -Message "Removing Provisioned Package $($Item.AppxPackage)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
+                        Write-EventLog -EventId 20 -Message "Removing Provisioned Package $($Item.AppxPackage)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
                         Write-Verbose "Removeing Provisioned Package $($Item.AppxPackage)"
                         Get-AppxProvisionedPackage -Online | Where-Object { $_.PackageName -like ("*{0}*" -f $Item.AppxPackage) } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
                         
-                        #Write-EventLog -EventId 20 -Message "Attempting to remove [All Users] $($Item.AppxPackage) - $($Item.Description)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
+                        Write-EventLog -EventId 20 -Message "Attempting to remove [All Users] $($Item.AppxPackage) - $($Item.Description)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
                         Write-Verbose "Attempting to remove [All Users] $($Item.AppxPackage) - $($Item.Description)"
                         Get-AppxPackage -AllUsers -Name ("*{0}*" -f $Item.AppxPackage) | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue 
                         
-                        #Write-EventLog -EventId 20 -Message "Attempting to remove $($Item.AppxPackage) - $($Item.Description)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
+                        Write-EventLog -EventId 20 -Message "Attempting to remove $($Item.AppxPackage) - $($Item.Description)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
                         Write-Verbose "Attempting to remove $($Item.AppxPackage) - $($Item.Description)"
                         Get-AppxPackage -Name ("*{0}*" -f $Item.AppxPackage) | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
-                        
                     }
                     catch 
                     {
@@ -222,8 +221,8 @@ PROCESS {
 
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
-   ### If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
-     If ($Optimizations -contains 'ScheduledTasks'-or $Optimizations -contains "All) {
+    #If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
+        If ($Optimizations -contains 'ScheduledTasks' ){
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
@@ -274,24 +273,16 @@ PROCESS {
     #region Customize Default User Profile
 
     # Apply appearance customizations to default user registry hive, then close hive file
-   # If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
-    If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
+    #If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "DefaultUserSettings")
+
     {
-    Write-Host " THIS IS THE ERROR BIT Start"
-    #$DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
-     $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUsersSettings.Json"
-     Write-Host " THIS IS THE ERROR BIT End"
-     start-sleep -s 60
+        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
         If (Test-Path $DefaultUserSettingsFilePath)
-         
         {
-        Write-Host " THIS IS THE ERROR BIT End end"
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
-            
             $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
-            $usersettings | Write-Host
-           
             If ($UserSettings.Count -gt 0)
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
