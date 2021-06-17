@@ -276,6 +276,6 @@
         "KeyName": "IsMSACloudSearchEnabled",
         "PropertyType": "DWORD",
         "PropertyValue": 0,
-        "SetProperty": "True"
+        "SetProperty": "Truee"
     }
 ]
