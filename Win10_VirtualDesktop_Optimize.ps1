@@ -223,7 +223,7 @@ PROCESS {
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
    ### If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
-     If ($Optimizations -contains 'ScheduledTasks') {
+     If ($Optimizations -contains 'ScheduledTasks'-or $Optimizations -contains "All) {
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
@@ -274,21 +274,22 @@ PROCESS {
     #region Customize Default User Profile
 
     # Apply appearance customizations to default user registry hive, then close hive file
+   # If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
     {
     Write-Host " THIS IS THE ERROR BIT Start"
-    #        $DefaultUserSettings = ".\ConfigurationFiles\DefaultUserSettings.json"
-     $DefaultUserSettings = ".\ConfigurationFiles\DefaultUsersSettings.Json"
+    #$DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
+     $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUsersSettings.Json"
      Write-Host " THIS IS THE ERROR BIT End"
      start-sleep -s 60
-        If (Test-Path $DefaultUserSettings)
+        If (Test-Path $DefaultUserSettingsFilePath)
          
         {
         Write-Host " THIS IS THE ERROR BIT End end"
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
             
-            $UserSettings = (Get-Content $DefaultUserSettings | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
+            $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
             $usersettings | Write-Host
            
             If ($UserSettings.Count -gt 0)
@@ -349,7 +350,7 @@ PROCESS {
         }
         Else
         {
-            Write-EventLog -EventId 40 -Message "File not found: $DefaultUserSettings" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
+            Write-EventLog -EventId 40 -Message "File not found: $DefaultUserSettingsFilePath" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
         }    }
     #endregion
 
