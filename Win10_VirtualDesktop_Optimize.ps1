@@ -280,8 +280,9 @@ PROCESS {
         $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
          Write-Host " THIS IS THE ERROR BIT End"
         If (Test-Path $DefaultUserSettingsFilePath)
-         Write-Host " THIS IS THE ERROR BIT End end"
+         
         {
+        Write-Host " THIS IS THE ERROR BIT End end"
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
             
