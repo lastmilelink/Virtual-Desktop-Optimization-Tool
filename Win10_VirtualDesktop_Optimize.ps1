@@ -276,15 +276,18 @@ PROCESS {
     # Apply appearance customizations to default user registry hive, then close hive file
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
     {
+    Write-Host " THIS IS THE ERROR BIT Start"
         $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
+         Write-Host " THIS IS THE ERROR BIT End"
         If (Test-Path $DefaultUserSettingsFilePath)
+         Write-Host " THIS IS THE ERROR BIT End end"
         {
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
-            Write-Host " THIS IS THE ERROR BIT Start"
+            
             $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
             $usersettings | Write-Host
-            Write-Host " THIS IS THE ERROR BIT End"
+           
             If ($UserSettings.Count -gt 0)
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
