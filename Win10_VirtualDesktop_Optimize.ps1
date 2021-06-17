@@ -185,15 +185,15 @@ PROCESS {
                         #Write-EventLog -EventId 20 -Message "Removing Provisioned Package $($Item.AppxPackage)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
                         Write-Verbose "Removeing Provisioned Package $($Item.AppxPackage)"
                         Get-AppxProvisionedPackage -Online | Where-Object { $_.PackageName -like ("*{0}*" -f $Item.AppxPackage) } | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Out-Null
-                        start-sleep -seconds 10
+                        
                         #Write-EventLog -EventId 20 -Message "Attempting to remove [All Users] $($Item.AppxPackage) - $($Item.Description)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
                         Write-Verbose "Attempting to remove [All Users] $($Item.AppxPackage) - $($Item.Description)"
                         Get-AppxPackage -AllUsers -Name ("*{0}*" -f $Item.AppxPackage) | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue 
-                        start-sleep -seconds 10
+                        
                         #Write-EventLog -EventId 20 -Message "Attempting to remove $($Item.AppxPackage) - $($Item.Description)" -LogName 'Virtual Desktop Optimization' -Source 'AppxPackages' -EntryType Information 
                         Write-Verbose "Attempting to remove $($Item.AppxPackage) - $($Item.Description)"
                         Get-AppxPackage -Name ("*{0}*" -f $Item.AppxPackage) | Remove-AppxPackage -ErrorAction SilentlyContinue | Out-Null
-                        start-sleep -seconds 10
+                        
                     }
                     catch 
                     {
@@ -277,16 +277,18 @@ PROCESS {
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
     {
     Write-Host " THIS IS THE ERROR BIT Start"
-        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
-         Write-Host " THIS IS THE ERROR BIT End"
-        If (Test-Path $DefaultUserSettingsFilePath)
+    #        $DefaultUserSettings = ".\ConfigurationFiles\DefaultUserSettings.json"
+     $DefaultUserSettings = ".\ConfigurationFiles\DefaultUsersSettings.Json"
+     Write-Host " THIS IS THE ERROR BIT End"
+     start-sleep -s 60
+        If (Test-Path $DefaultUserSettings)
          
         {
         Write-Host " THIS IS THE ERROR BIT End end"
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
             
-            $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
+            $UserSettings = (Get-Content $DefaultUserSettings | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
             $usersettings | Write-Host
            
             If ($UserSettings.Count -gt 0)
@@ -347,7 +349,7 @@ PROCESS {
         }
         Else
         {
-            Write-EventLog -EventId 40 -Message "File not found: $DefaultUserSettingsFilePath" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
+            Write-EventLog -EventId 40 -Message "File not found: $DefaultUserSettings" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
         }    }
     #endregion
 
