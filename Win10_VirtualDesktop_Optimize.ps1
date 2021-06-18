@@ -278,7 +278,7 @@ PROCESS {
     #If ($Optimizations -contains "DefaultUserSettings")
 
     {
-        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
+        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings2.json"
         If (Test-Path $DefaultUserSettingsFilePath)
         {
             #Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
