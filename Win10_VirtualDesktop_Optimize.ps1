@@ -288,8 +288,9 @@ PROCESS {
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
                 Write-Verbose "Processing Default User Settings (Registry Keys)"
-
+                Write-Host "[VDI Optimize] Reg Load - start"
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
+                 Write-Host "[VDI Optimize] Reg Load - end"
 
                 Foreach ($Item in $UserSettings)
                 {
