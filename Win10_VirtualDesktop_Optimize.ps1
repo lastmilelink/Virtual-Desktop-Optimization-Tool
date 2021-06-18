@@ -168,8 +168,8 @@ PROCESS {
     #endregion
 
     #region Begin Clean APPX Packages
-    #If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
-    If ($Optimizations -contains "AppxPackages")
+    If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
+    #If ($Optimizations -contains "AppxPackages")
     {
         $AppxConfigFilePath = ".\ConfigurationFiles\AppxPackages.json"
         If (Test-Path $AppxConfigFilePath)
@@ -222,8 +222,8 @@ PROCESS {
 
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
-    #If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
-     If ($Optimizations -contains 'ScheduledTasks' ){
+    If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
+     #If ($Optimizations -contains 'ScheduledTasks' ){
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
@@ -353,8 +353,8 @@ PROCESS {
     #endregion
 
     #region Disable Windows Traces
-    #f ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
-    If ($Optimizations -contains "AutoLoggers")
+    if ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
+    #If ($Optimizations -contains "AutoLoggers")
     {
         $AutoLoggersFilePath = ".\ConfigurationFiles\Autologgers.Json"
         If (Test-Path $AutoLoggersFilePath)
@@ -396,8 +396,8 @@ PROCESS {
     #endregion
 
     #region Disable Services
-    #f ($Optimizations -contains "Services" -or $Optimizations -contains "All")
-    If ($Optimizations -contains "Services")
+    if ($Optimizations -contains "Services" -or $Optimizations -contains "All")
+    #If ($Optimizations -contains "Services")
     {
         $ServicesFilePath = ".\ConfigurationFiles\Services.json"
         If (Test-Path $ServicesFilePath)
@@ -443,8 +443,8 @@ PROCESS {
 
     #region Network Optimization
     # LanManWorkstation optimizations
-    #f ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
-    If ($Optimizations -contains "NetworkOptimizations")
+    if ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
+    #If ($Optimizations -contains "NetworkOptimizations")
     {
         $NetworkOptimizationsFilePath = ".\ConfigurationFiles\LanManWorkstation.json"
         If (Test-Path $NetworkOptimizationsFilePath)
