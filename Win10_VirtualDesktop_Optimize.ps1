@@ -286,8 +286,9 @@ PROCESS {
             $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
             If ($UserSettings.Count -gt 0)
             {
-                Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                Write-Verbose "Processing Default User Settings (Registry Keys)"
+                #Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
+                #Write-Verbose "Processing Default User Settings (Registry Keys)"
+                Write-host "Processing Default User Settings (Registry Keys)"
                 Write-Host "[VDI Optimize] Reg Load - start"
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
                  Write-Host "[VDI Optimize] Reg Load - end"
