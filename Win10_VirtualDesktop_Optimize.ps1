@@ -299,18 +299,19 @@ PROCESS {
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT
                 start-sleep -s 10
                  Write-Host "[VDI Optimize] Reg Load - end"
+                  Write-Host "[VDI Optimize] Foreach start"
 
                 Foreach ($Item in $UserSettings)
                 {
                     If ($Item.PropertyType -eq "BINARY")
                     {
                         $Value = [byte[]]($Item.PropertyValue.Split(","))
-                         Write-Host "Binary If - start"
+                         
                     }
                     Else
                     {
                         $Value = $Item.PropertyValue
-                         Write-Host Binery Else - start"
+                        
                     }
 
                     If (Test-Path -Path ("{0}" -f $Item.HivePath))
