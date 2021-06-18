@@ -295,10 +295,10 @@ PROCESS {
                 #Write-Verbose "Processing Default User Settings (Registry Keys)"
                 Write-host "Processing Default User Settings (Registry Keys)"
                 Write-Host "[VDI Optimize] Reg Load - start"
-               [GC]::Collect()
+               [gc]::collect()
+               Start-Sleep -Seconds 10
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT
-                start-sleep -s 10
-                 Write-Host "[VDI Optimize] Reg Load - end"
+                                 Write-Host "[VDI Optimize] Reg Load - end"
                   Write-Host "[VDI Optimize] Foreach start"
 
                 Foreach ($Item in $UserSettings)
