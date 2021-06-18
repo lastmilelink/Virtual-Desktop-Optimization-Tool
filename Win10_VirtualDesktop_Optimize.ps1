@@ -305,10 +305,12 @@ PROCESS {
                     If ($Item.PropertyType -eq "BINARY")
                     {
                         $Value = [byte[]]($Item.PropertyValue.Split(","))
+                         Write-Host "Binary If - start"
                     }
                     Else
                     {
                         $Value = $Item.PropertyValue
+                         Write-Host Binery Else - start"
                     }
 
                     If (Test-Path -Path ("{0}" -f $Item.HivePath))
