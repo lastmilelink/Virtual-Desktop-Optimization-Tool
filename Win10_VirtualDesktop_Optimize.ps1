@@ -283,14 +283,19 @@ PROCESS {
         {
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
+            start-sleep -s 10
             $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
+            start-sleep -s 10
             If ($UserSettings.Count -gt 0)
             {
+            start-sleep -s 10
                 #Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
                 #Write-Verbose "Processing Default User Settings (Registry Keys)"
                 Write-host "Processing Default User Settings (Registry Keys)"
                 Write-Host "[VDI Optimize] Reg Load - start"
+                start-sleep -s 10
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT
+                start-sleep -s 10
                  Write-Host "[VDI Optimize] Reg Load - end"
 
                 Foreach ($Item in $UserSettings)
