@@ -168,7 +168,8 @@ PROCESS {
     #endregion
 
     #region Begin Clean APPX Packages
-    If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
+    #If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "AppxPackages")
     {
         $AppxConfigFilePath = ".\ConfigurationFiles\AppxPackages.json"
         If (Test-Path $AppxConfigFilePath)
@@ -221,8 +222,8 @@ PROCESS {
 
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
-    If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
-       # If ($Optimizations -contains 'ScheduledTasks' ){
+    #If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
+     If ($Optimizations -contains 'ScheduledTasks' ){
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
@@ -273,8 +274,8 @@ PROCESS {
     #region Customize Default User Profile
 
     # Apply appearance customizations to default user registry hive, then close hive file
-    #If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
-    If ($Optimizations -contains "DefaultUserSettings")
+    If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
+    #If ($Optimizations -contains "DefaultUserSettings")
 
     {
         $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
@@ -346,7 +347,8 @@ PROCESS {
     #endregion
 
     #region Disable Windows Traces
-    If ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
+    #f ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "AutoLoggers")
     {
         $AutoLoggersFilePath = ".\ConfigurationFiles\Autologgers.Json"
         If (Test-Path $AutoLoggersFilePath)
@@ -388,7 +390,8 @@ PROCESS {
     #endregion
 
     #region Disable Services
-    If ($Optimizations -contains "Services" -or $Optimizations -contains "All")
+    #f ($Optimizations -contains "Services" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "Services")
     {
         $ServicesFilePath = ".\ConfigurationFiles\Services.json"
         If (Test-Path $ServicesFilePath)
@@ -434,7 +437,8 @@ PROCESS {
 
     #region Network Optimization
     # LanManWorkstation optimizations
-    If ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
+    #f ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "NetworkOptimizations")
     {
         $NetworkOptimizationsFilePath = ".\ConfigurationFiles\LanManWorkstation.json"
         If (Test-Path $NetworkOptimizationsFilePath)
