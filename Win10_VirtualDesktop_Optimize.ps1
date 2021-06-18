@@ -303,22 +303,13 @@ PROCESS {
 
                 Foreach ($Item in $UserSettings)
                 {
-                    If ($Item.PropertyType -eq "BINARY")
-                    {
-                        $Value = [byte[]]($Item.PropertyValue.Split(","))
-                         
-                    }
-                    Else
-                    {
-                        $Value = $Item.PropertyValue
-                        
-                    }
+                    
 
                     If (Test-Path -Path ("{0}" -f $Item.HivePath))
                     {
                         Write-EventLog -EventId 40 -Message "Found $($Item.HivePath) - $($Item.KeyName)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information        
                         Write-Verbose "Found $($Item.HivePath) - $($Item.KeyName)"
-                       # If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue)
+                       # If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction )
                         If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath))
                         {
                             Write-EventLog -EventId 40 -Message "Set $($Item.HivePath) - $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
