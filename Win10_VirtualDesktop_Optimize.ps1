@@ -282,8 +282,12 @@ PROCESS {
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
                 Write-Verbose "Processing Default User Settings (Registry Keys)"
-Write-Verbose "Reg Load"
+Write-Verbose "Reg Load"[GC]::Collect()
+Start-Sleep -Milliseconds 100
+        [gc]::Collect()
                 # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
+                & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
+                & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
 
                 Foreach ($Item in $UserSettings)
