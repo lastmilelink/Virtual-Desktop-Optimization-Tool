@@ -275,7 +275,7 @@ PROCESS {
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
     {
         # --ii-- $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
-        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings2.json"
+        $DefaultUserSettingsFilePath = "C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json"
         If (Test-Path $DefaultUserSettingsFilePath)
         {
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
