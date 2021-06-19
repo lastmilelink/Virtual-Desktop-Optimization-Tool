@@ -282,7 +282,7 @@ PROCESS {
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
                 Write-Verbose "Processing Default User Settings (Registry Keys)"
-
+Write-Verbose "Reg Load"
                 # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
 
