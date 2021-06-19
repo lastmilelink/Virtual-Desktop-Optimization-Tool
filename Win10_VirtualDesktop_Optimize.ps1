@@ -25,15 +25,13 @@
 
 ######################################################################################################################################>
 
-
 [Cmdletbinding(DefaultParameterSetName="Default")]
 Param (
     # Parameter help description
     [ArgumentCompleter( { Get-ChildItem $PSScriptRoot -Directory | Where-Object { $_.Name -ne 'LGPO' } | Select-Object -ExpandProperty Name } )]
     [System.String]$WindowsVersion = (Get-ItemProperty "HKLM:\Software\Microsoft\Windows NT\CurrentVersion\").ReleaseId,
 
-    #[ValidateSet('All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup')] 
-    [ValidateSet('All','WindowsMediaPlayer','AppxPackages','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup')] 
+    [ValidateSet('All','WindowsMediaPlayer','AppxPackages','ScheduledTasks','DefaultUserSettings','Autologgers','Services','NetworkOptimizations','LGPO','DiskCleanup')] 
     [String[]]
     $Optimizations = "All",
 
@@ -86,9 +84,8 @@ The UWP app input file contains the list of almost all the UWP application packa
 The Store and a few others, such as Wallet, were left off intentionally.  Though it is possible to remove the Store app, 
 it is nearly impossible to get it back.  Please review the lists below and comment out or remove references to packages that you do not want to remove.
 #>
-
 BEGIN {
-    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Verbose
+    
     If (-not([System.Diagnostics.EventLog]::SourceExists("Virtual Desktop Optimization")))
     {
         # All VDOT main function Event ID's [1-9]
@@ -169,7 +166,6 @@ PROCESS {
 
     #region Begin Clean APPX Packages
     If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
-    #If ($Optimizations -contains "AppxPackages")
     {
         $AppxConfigFilePath = ".\ConfigurationFiles\AppxPackages.json"
         If (Test-Path $AppxConfigFilePath)
@@ -223,7 +219,6 @@ PROCESS {
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
     If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
-     #If ($Optimizations -contains 'ScheduledTasks' ){
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
@@ -275,51 +270,48 @@ PROCESS {
 
     # Apply appearance customizations to default user registry hive, then close hive file
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
-    #If ($Optimizations -contains "DefaultUserSettings")
-
     {
+        # --ii-- $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
         $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings2.json"
         If (Test-Path $DefaultUserSettingsFilePath)
         {
-            #Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
-            #Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
-            Write-Host "Grabbing user settings - start"
-           $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
-            start-sleep -s 10
-            Write-Host "Grabbing user settings - end"
-            $userSettings | out-host
+            Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
+            Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
+            $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
             If ($UserSettings.Count -gt 0)
             {
-           
-                #Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                #Write-Verbose "Processing Default User Settings (Registry Keys)"
-                Write-host "Processing Default User Settings (Registry Keys)"
-                Write-Host "[VDI Optimize] Reg Load - start"
-               [gc]::collect()
-               Start-Sleep -Seconds 10
-                & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT
-                                 Write-Host "[VDI Optimize] Reg Load - end"
-                  Write-Host "[VDI Optimize] Foreach start"
+                Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
+                Write-Verbose "Processing Default User Settings (Registry Keys)"
+
+                # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
+                & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
 
                 Foreach ($Item in $UserSettings)
                 {
-                    
+                    If ($Item.PropertyType -eq "BINARY")
+                    {
+                        $Value = [byte[]]($Item.PropertyValue.Split(","))
+                    }
+                    Else
+                    {
+                        $Value = $Item.PropertyValue
+                    }
 
                     If (Test-Path -Path ("{0}" -f $Item.HivePath))
                     {
                         Write-EventLog -EventId 40 -Message "Found $($Item.HivePath) - $($Item.KeyName)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information        
                         Write-Verbose "Found $($Item.HivePath) - $($Item.KeyName)"
-                       # If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction )
-                        If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath))
+                        If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue)
                         {
                             Write-EventLog -EventId 40 -Message "Set $($Item.HivePath) - $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                            Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force 
+                            # --ii-- Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force 
+                            Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force -Verbose
                         }
                         Else
                         {
                             Write-EventLog -EventId 40 -Message "New $($Item.HivePath) Name $($Item.KeyName) PropertyType $($Item.PropertyType) Value $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                             New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
-                             New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force 
+                            # --ii-- New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
+                            New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force -Verbose
                         }
                     }
                     Else
@@ -329,8 +321,8 @@ PROCESS {
                         $newKey = New-Item -Path ("{0}" -f $Item.HivePath) -Force
                         If (Test-Path -Path $newKey.PSPath)
                         {
-                           # New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
-                            New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force 
+                           # --ii-- New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
+                            New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force -Verbose
                         }
                         Else
                         {
@@ -353,8 +345,7 @@ PROCESS {
     #endregion
 
     #region Disable Windows Traces
-    if ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
-    #If ($Optimizations -contains "AutoLoggers")
+    If ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
     {
         $AutoLoggersFilePath = ".\ConfigurationFiles\Autologgers.Json"
         If (Test-Path $AutoLoggersFilePath)
@@ -396,8 +387,7 @@ PROCESS {
     #endregion
 
     #region Disable Services
-    if ($Optimizations -contains "Services" -or $Optimizations -contains "All")
-    #If ($Optimizations -contains "Services")
+    If ($Optimizations -contains "Services" -or $Optimizations -contains "All")
     {
         $ServicesFilePath = ".\ConfigurationFiles\Services.json"
         If (Test-Path $ServicesFilePath)
@@ -443,8 +433,7 @@ PROCESS {
 
     #region Network Optimization
     # LanManWorkstation optimizations
-    if ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
-    #If ($Optimizations -contains "NetworkOptimizations")
+    If ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
     {
         $NetworkOptimizationsFilePath = ".\ConfigurationFiles\LanManWorkstation.json"
         If (Test-Path $NetworkOptimizationsFilePath)
@@ -646,7 +635,7 @@ PROCESS {
     }
     Else
     {
-        write-host "Done Optim with exit code $lastexitcode"
+        Write-host "Windows 10 Optim exit code is: $lastexitcode"
     }
     ########################  END OF SCRIPT  ########################
 }
