@@ -1,12 +1,5 @@
 [
     {
-        "HivePath": "HKLM:\\VDOT_TEMP\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer",
-        "KeyName": "ShellState",
-        "PropertyType": "BINARY",
-        "PropertyValue": "0x24,0x00,0x00,0x00,0x3C,0x28,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00",
-        "SetProperty": "True"
-    },
-    {
         "HivePath": "HKLM:\\VDOT_TEMP\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
         "KeyName": "IconsOnly",
         "PropertyType": "DWORD",
