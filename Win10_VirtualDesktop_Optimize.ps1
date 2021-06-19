@@ -280,7 +280,10 @@ PROCESS {
         {
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
-            $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
+            $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json)
+            $Usersettingscount = $UserSettings.Count
+            $UserSettings | write-host
+            
             If ($UserSettings.Count -gt 0)
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
