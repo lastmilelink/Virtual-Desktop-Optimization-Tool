@@ -275,7 +275,7 @@ PROCESS {
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
     {
         # --ii-- $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
-        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
+        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings2.json"
         If (Test-Path $DefaultUserSettingsFilePath)
         {
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
@@ -287,8 +287,7 @@ PROCESS {
                 Write-Verbose "Processing Default User Settings (Registry Keys)"
 Write-Verbose "Reg Load"
 Start-Sleep -Milliseconds 100
-        [gc]::Collect()
-        Start-Sleep -Milliseconds 100
+                Start-Sleep -Milliseconds 100
                 # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
                 & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
                 Start-Sleep -Milliseconds 100
