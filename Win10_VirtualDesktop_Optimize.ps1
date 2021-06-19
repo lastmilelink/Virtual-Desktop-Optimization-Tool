@@ -146,7 +146,8 @@ PROCESS {
     }
 
     #region Disable, then remove, Windows Media Player including payload
-    If ($Optimizations -contains "WindowsMediaPlayer" -or $Optimizations -contains "All") {
+   # If ($Optimizations -contains "WindowsMediaPlayer" -or $Optimizations -contains "All") {
+    If ($Optimizations -contains "WindowsMediaPlayer") {
         try
         {
             Write-EventLog -EventId 10 -Message "[VDI Optimize] Disable / Remove Windows Media Player" -LogName 'Virtual Desktop Optimization' -Source 'WindowsMediaPlayer' -EntryType Information 
@@ -165,7 +166,8 @@ PROCESS {
     #endregion
 
     #region Begin Clean APPX Packages
-    If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
+    # If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "AppxPackages")
     {
         $AppxConfigFilePath = ".\ConfigurationFiles\AppxPackages.json"
         If (Test-Path $AppxConfigFilePath)
@@ -218,7 +220,8 @@ PROCESS {
 
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
-    If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
+   #  If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
+      If ($Optimizations -contains 'ScheduledTasks' ) {
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
@@ -353,7 +356,8 @@ Start-Sleep -Milliseconds 100
     #endregion
 
     #region Disable Windows Traces
-    If ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
+   # If ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
+      If ($Optimizations -contains "AutoLoggers")
     {
         $AutoLoggersFilePath = ".\ConfigurationFiles\Autologgers.Json"
         If (Test-Path $AutoLoggersFilePath)
@@ -395,7 +399,8 @@ Start-Sleep -Milliseconds 100
     #endregion
 
     #region Disable Services
-    If ($Optimizations -contains "Services" -or $Optimizations -contains "All")
+   # If ($Optimizations -contains "Services" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "Services")
     {
         $ServicesFilePath = ".\ConfigurationFiles\Services.json"
         If (Test-Path $ServicesFilePath)
@@ -441,7 +446,8 @@ Start-Sleep -Milliseconds 100
 
     #region Network Optimization
     # LanManWorkstation optimizations
-    If ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
+   # If ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "NetworkOptimizations")
     {
         $NetworkOptimizationsFilePath = ".\ConfigurationFiles\LanManWorkstation.json"
         If (Test-Path $NetworkOptimizationsFilePath)
