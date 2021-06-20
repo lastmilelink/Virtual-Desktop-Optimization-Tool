@@ -253,7 +253,7 @@ PROCESS {
         Write-Host "grab usersetting - start"
         $UserSettings1 = (Get-Content C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json | ConvertFrom-Json)
         Write-Host "grab usersetting - end"
-        If (Test-Path $UserSettings1) {
+        If (1 -eq 1) {
             Write-Host "Inside If usersettings - start"
             # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
             Write-Host "Reg load - start"
