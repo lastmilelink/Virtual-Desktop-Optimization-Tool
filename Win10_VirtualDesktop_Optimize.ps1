@@ -291,8 +291,10 @@ PROCESS {
 
             If ($UserSettings.Count -gt 0)
             {
+            write-host " Inside IF serSettings2" 
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                Write-Verbose "Processing Default User Settings (Registry Keys)"
+               write-host "after write evenlog"  
+                Write-host  "Processing Default User Settings (Registry Keys)"
 Write-Verbose "Reg Load"
 Start-Sleep -Milliseconds 100
                 Start-Sleep -Milliseconds 100
