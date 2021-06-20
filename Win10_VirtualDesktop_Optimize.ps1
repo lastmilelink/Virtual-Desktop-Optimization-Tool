@@ -281,19 +281,21 @@ PROCESS {
         {
             #Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
-            $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json)
-            $Usersettings | Write-Host -Verbose
-            $Usersettingscount = $UserSettings.Count
+            $UserSettings1 = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json)
+            $Usersettings1 | Write-Host -Verbose
+            $Usersettingscount = $UserSettings1.Count
             $Usersettingscount | write-host -Verbose
             start-sleep -s 10
             write-host "Got DefaultUserSettings2 path" 
             start-sleep -s 10
             Write-Host "Next section is if usersetting gt 0"
             Write-Host $Error
+            Write-Host ($_ | ConvertTo-Json)
 
-            If ($UserSettings.Count -gt 0)
+            If ($UserSettings1.Count -gt 0)
             {
             write-host " Inside IF serSettings2" 
+            Write-Host ($_ | ConvertTo-Json)
                 #Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
                write-host "after write evenlog"  
                 Write-host  "Processing Default User Settings (Registry Keys)"
@@ -308,7 +310,7 @@ Write-Host $Error
                 Start-Sleep -Milliseconds 100
                
 
-                Foreach ($Item in $UserSettings)
+                Foreach ($Item in $UserSettings1)
                 {
                     If ($Item.PropertyType -eq "BINARY")
                     {
