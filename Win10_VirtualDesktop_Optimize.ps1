@@ -293,9 +293,7 @@ PROCESS {
             Write-Host ($_ | ConvertTo-Json)
 
             #If ($UserSettings1.Count -gt 0)
-            If ($UserSettings1.Count -ge 0)
-            {Write-Host "New greater"
-                $UserSettings1.Count}
+            
             If ($UserSettings1.Count -gt 0)
             {
             write-host " Inside IF serSettings2" 
