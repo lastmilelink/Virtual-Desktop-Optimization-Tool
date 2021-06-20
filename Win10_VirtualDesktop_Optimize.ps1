@@ -281,9 +281,14 @@ PROCESS {
             Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
             $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json)
+            $Usersettings | Write-Host -Verbose
             $Usersettingscount = $UserSettings.Count
-            $UserSettings | write-host
-            
+            $Usersettingscount | write-host -Verbose
+            start-sleep -s 10
+            write-host "Got DefaultUserSettings2 path" 
+            start-sleep
+            Write-Host "Next section is if usersetting gt 0"
+
             If ($UserSettings.Count -gt 0)
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
@@ -292,12 +297,9 @@ Write-Verbose "Reg Load"
 Start-Sleep -Milliseconds 100
                 Start-Sleep -Milliseconds 100
                 # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
-                & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
+                REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
                 Start-Sleep -Milliseconds 100
-                & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
-                Start-Sleep -Milliseconds 100
-                & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
-                Start-Sleep -Milliseconds 100
+               
 
                 Foreach ($Item in $UserSettings)
                 {
@@ -343,8 +345,8 @@ Start-Sleep -Milliseconds 100
                         } 
                     }
                 }
-
-                & REG UNLOAD HKLM\VDOT_TEMP | Out-Null
+                [GC]::Collect()
+                REG UNLOAD HKLM\VDOT_TEMP | Out-Null
             }
             Else
             {
