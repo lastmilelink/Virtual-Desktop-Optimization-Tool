@@ -286,7 +286,7 @@ PROCESS {
             $Usersettingscount | write-host -Verbose
             start-sleep -s 10
             write-host "Got DefaultUserSettings2 path" 
-            start-sleep
+            start-sleep -s 10
             Write-Host "Next section is if usersetting gt 0"
 
             If ($UserSettings.Count -gt 0)
