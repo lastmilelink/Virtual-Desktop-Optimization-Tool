@@ -272,13 +272,14 @@ PROCESS {
     #region Customize Default User Profile
 
     # Apply appearance customizations to default user registry hive, then close hive file
+    $error.clear()
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
     {
         # --ii-- $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
         $DefaultUserSettingsFilePath = "C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json"
         If (Test-Path $DefaultUserSettingsFilePath)
         {
-            Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
+            #Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
             Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
             $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json)
             $Usersettings | Write-Host -Verbose
@@ -288,6 +289,7 @@ PROCESS {
             write-host "Got DefaultUserSettings2 path" 
             start-sleep -s 10
             Write-Host "Next section is if usersetting gt 0"
+            Write-Host $Error
 
             If ($UserSettings.Count -gt 0)
             {
@@ -297,6 +299,9 @@ PROCESS {
                 Write-host  "Processing Default User Settings (Registry Keys)"
 Write-Verbose "Reg Load"
 Start-Sleep -Milliseconds 100
+$error.clear()
+Write-Host $Error
+
                 Start-Sleep -Milliseconds 100
                 # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
                 REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
