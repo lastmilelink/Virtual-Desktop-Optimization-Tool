@@ -249,8 +249,9 @@ PROCESS {
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All") {
         # --ii-- $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
         $DefaultUserSettingsFilePath = "C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json"
+        write-host $DefaultUserSettingsFilePath 
         Write-Host "grab usersetting - start"
-        $UserSettings1 = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json)
+        $UserSettings1 = (Get-Content C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json | ConvertFrom-Json)
         Write-Host "grab usersetting - end"
         If ($UserSettings1.Count -gt 0) {
             Write-Host "Inside If usersettings - start"
