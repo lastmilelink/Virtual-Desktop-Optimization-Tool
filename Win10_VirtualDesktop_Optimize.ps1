@@ -283,7 +283,7 @@ PROCESS {
                 Write-Verbose "Processing Default User Settings (Registry Keys)"
                # $RegDefault = "C:\Users\Default\NTUSER.DAT"
 #Start-Process reg-ArgumentList "LOAD HKLM\VDOT_TEMP  $RegDefault" -PassThru -Wait
-& REG LOAD "HKLM\VDOT_TEMP" C:\Users\Default\NTUSER.DAT 
+& REG LOAD "HKLM\VDOT_TEMP" "$Env:SystemDrive\Users\Default\NTUSER.DAT"
 
 
                
