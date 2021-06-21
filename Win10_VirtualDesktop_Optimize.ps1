@@ -242,81 +242,43 @@ PROCESS {
     }
     #endregion
 
-    #region Customize Default User Profile
+        #region Customize Default User Profile
 
     # Apply appearance customizations to default user registry hive, then close hive file
-    $error.clear()
-    If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All") {
-        # --ii-- $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
-        $DefaultUserSettingsFilePath = "C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json"
-        write-host $DefaultUserSettingsFilePath 
-        Write-Host "grab usersetting - start"
-        $UserSettings2 = (Get-Content C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json)
-        Start-Sleep -Milliseconds 100
-        Write-Host "grab usersetting - end"
-        Start-Sleep -Milliseconds 100
-        $ErrorActionPreference = 'Continue'
-        $usersettings1 = $usersettings2 | ConvertFrom-Json -ErrorAction ignore
-        $usersettings3 = $usersettings2 | ConvertFrom-Json -ErrorAction  SilentlyContinue
-        Start-Sleep -Milliseconds 100
-        Write-Host "grab usersetting - json"
-        If (1 -eq 1) {
-            Start-Sleep -Milliseconds 100
-            Write-Host "Inside If usersettings - start"
-            Start-Sleep -Milliseconds 100
-            # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
-            Write-Host "Reg load - start"
-            REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
-            Start-Sleep -Milliseconds 100
-            Write-Host "Reg load - end"
-            Write-Host "Foreach - start"
-            Foreach ($Item in $UserSettings1) {
-                If ($Item.PropertyType -eq "BINARY") {
-                    $Value = [byte[]]($Item.PropertyValue.Split(","))
-                }
-                Else {
-                    $Value = $Item.PropertyValue
+    If ($DefaultUserSettings) {
+        If (Test-Path .\ConfigurationFiles\DefaultUserSettings.json) {
+            Write-Output ("[VDI Optimize] Set Default User Settings")
+            $UserSettings = (Get-Content .\ConfigurationFiles\DefaultUserSettings.json | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
+            If ($UserSettings.Count -gt 0) {
+                Write-Verbose "Processing Default User Settings (Registry Keys)"
+
+                & REG LOAD HKLM\DEFAULT C:\Users\Default\NTUSER.DAT | Out-Null
+
+                Foreach ($Item in $UserSettings) {
+                    If ($Item.PropertyType -eq "BINARY") { $Value = [byte[]]($Item.PropertyValue.Split(",")) }
+                    Else { $Value = $Item.PropertyValue }
+
+                    If (Test-Path -Path ("{0}" -f $Item.HivePath)) {
+                        Write-Verbose ("Found {0}\{1}" -f $Item.HivePath,$Item.KeyName)
+                        If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue) { Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force }
+                        Else { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null }
+                    }
+                    Else {
+                        Write-Warning ("Registry Path not found: {0}" -f $Item.HivePath)
+                        Write-Verbose ("Creating new Registry Key")
+                        $newKey = New-Item -Path ("{0}" -f $Item.HivePath) -Force
+                        If (Test-Path -Path $newKey.PSPath) { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null}
+                        Else { Write-Output ("[ERROR] Failed to create new Registry key") }
+                    }
                 }
 
-                If (Test-Path -Path ("{0}" -f $Item.HivePath)) {
-                    Write-EventLog -EventId 40 -Message "Found $($Item.HivePath) - $($Item.KeyName)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information        
-                    Write-Verbose "Found $($Item.HivePath) - $($Item.KeyName)"
-                    If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue) {
-                        Write-EventLog -EventId 40 -Message "Set $($Item.HivePath) - $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                        # --ii-- Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force 
-                        Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force -Verbose
-                    }
-                    Else {
-                        Write-EventLog -EventId 40 -Message "New $($Item.HivePath) Name $($Item.KeyName) PropertyType $($Item.PropertyType) Value $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                        # --ii-- New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
-                        New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force -Verbose
-                    }
-                }
-                Else {
-                    Write-EventLog -EventId 40 -Message "Registry Path not found $($Item.HivePath)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                    Write-EventLog -EventId 40 -Message "Creating new Registry Key $($Item.HivePath)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                    $newKey = New-Item -Path ("{0}" -f $Item.HivePath) -Force
-                    If (Test-Path -Path $newKey.PSPath) {
-                        # --ii-- New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
-                        New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force -Verbose
-                    }
-                    Else {
-                        Write-EventLog -EventId 140 -Message "Failed to create new Registry Key" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Error
-                    } 
-                }
+                & REG UNLOAD HKLM\DEFAULT | Out-Null
             }
-            [GC]::Collect()
-            REG UNLOAD HKLM\VDOT_TEMP | Out-Null
+            Else { Write-Warning ("No Default User Settings to set") }
         }
-        Else {
-            Write-EventLog -EventId 40 -Message "No Default User Settings to set" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
-        }
-        
-        Else
-        {
-            Write-EventLog -EventId 40 -Message "File not found: $DefaultUserSettingsFilePath" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
-        }    
+        Else { Write-Warning ("File not found: {0}\ConfigurationFiles\DefaultUserSettings.json" -f $WorkingLocation) }
     }
+    #endregion
     #endregion
 
     #region Disable Windows Traces
