@@ -255,7 +255,9 @@ PROCESS {
         Start-Sleep -Milliseconds 100
         Write-Host "grab usersetting - end"
         Start-Sleep -Milliseconds 100
-        $usersettings1 = $usersettings2 | ConvertFrom-Json
+        $ErrorActionPreference = 'Continue'
+        $usersettings1 = $usersettings2 | ConvertFrom-Json -ErrorAction ignore
+        $usersettings3 = $usersettings2 | ConvertFrom-Json -ErrorAction  SilentlyContinue
         Start-Sleep -Milliseconds 100
         Write-Host "grab usersetting - json"
         If (1 -eq 1) {
