@@ -251,10 +251,17 @@ PROCESS {
         $DefaultUserSettingsFilePath = "C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json"
         write-host $DefaultUserSettingsFilePath 
         Write-Host "grab usersetting - start"
-        $UserSettings1 = (Get-Content C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json | ConvertFrom-Json)
+        $UserSettings2 = (Get-Content C:\buildartifacts\Working\W10_Optim\Virtual-Desktop-Optimization-Tool-main\2009\ConfigurationFiles\DefaultUserSettings2.json)
+        Start-Sleep -Milliseconds 100
         Write-Host "grab usersetting - end"
+        Start-Sleep -Milliseconds 100
+        $usersettings1 = $usersettings2 | ConvertFrom-Json
+        Start-Sleep -Milliseconds 100
+        Write-Host "grab usersetting - json"
         If (1 -eq 1) {
+            Start-Sleep -Milliseconds 100
             Write-Host "Inside If usersettings - start"
+            Start-Sleep -Milliseconds 100
             # --ii-- & REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
             Write-Host "Reg load - start"
             REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT 
