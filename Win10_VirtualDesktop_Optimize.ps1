@@ -165,7 +165,7 @@ PROCESS {
     #endregion
 
     #region Begin Clean APPX Packages
-    If ($Optimizations -contains "AppxPackages" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "AppxPackages" )
     {
         $AppxConfigFilePath = ".\ConfigurationFiles\AppxPackages.json"
         If (Test-Path $AppxConfigFilePath)
@@ -218,7 +218,7 @@ PROCESS {
 
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
-    If ($Optimizations -contains 'ScheduledTasks' -or $Optimizations -contains 'All') {
+    If ($Optimizations -contains 'ScheduledTasks' ) {
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
