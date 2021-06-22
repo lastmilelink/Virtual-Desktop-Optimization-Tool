@@ -146,7 +146,7 @@ PROCESS {
     }
 
     #region Disable, then remove, Windows Media Player including payload
-    If ($Optimizations -contains "WindowsMediaPlayer" -or $Optimizations -contains "All") {
+    If ($Optimizations -contains "WindowsMediaPlayer") {
         try
         {
             Write-EventLog -EventId 10 -Message "[VDI Optimize] Disable / Remove Windows Media Player" -LogName 'Virtual Desktop Optimization' -Source 'WindowsMediaPlayer' -EntryType Information 
@@ -218,7 +218,7 @@ PROCESS {
 
     # This section is for disabling scheduled tasks.  If you find a task that should not be disabled
     # change its "VDIState" from Disabled to Enabled, or remove it from the json completely.
-    If ($Optimizations -contains 'ScheduledTasks' ) {
+    If ($Optimizations -contains 'ScheduledTasks' {
         $ScheduledTasksFilePath = ".\ConfigurationFiles\ScheduledTasks.json"
         If (Test-Path $ScheduledTasksFilePath)
         {
@@ -281,9 +281,13 @@ PROCESS {
             {
                 Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
                 Write-Verbose "Processing Default User Settings (Registry Keys)"
-
-                #& REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
+               # $RegDefault = "C:\Users\Default\NTUSER.DAT"
+#Start-Process reg-ArgumentList "LOAD HKLM\VDOT_TEMP  $RegDefault" -PassThru -Wait
 & REG LOAD "HKLM\VDOT_TEMP" "$Env:SystemDrive\Users\Default\NTUSER.DAT"
+
+
+               
+
                 Foreach ($Item in $UserSettings)
                 {
                     If ($Item.PropertyType -eq "BINARY")
@@ -325,8 +329,9 @@ PROCESS {
                         } 
                     }
                 }
-
-                & REG UNLOAD HKLM\VDOT_TEMP | Out-Null
+#Start-Process reg-ArgumentList "UNLOAD HKLM\VDOT_TEMP" -PassThru -Wait
+& REG UNLOAD HKLM\VDOT_TEMP
+               
             }
             Else
             {
@@ -340,7 +345,7 @@ PROCESS {
     #endregion
 
     #region Disable Windows Traces
-    If ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "AutoLoggers")
     {
         $AutoLoggersFilePath = ".\ConfigurationFiles\Autologgers.Json"
         If (Test-Path $AutoLoggersFilePath)
@@ -382,7 +387,7 @@ PROCESS {
     #endregion
 
     #region Disable Services
-    If ($Optimizations -contains "Services" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "Services")
     {
         $ServicesFilePath = ".\ConfigurationFiles\Services.json"
         If (Test-Path $ServicesFilePath)
@@ -428,7 +433,7 @@ PROCESS {
 
     #region Network Optimization
     # LanManWorkstation optimizations
-    If ($Optimizations -contains "NetworkOptimizations" -or $Optimizations -contains "All")
+    If ($Optimizations -contains "NetworkOptimizations")
     {
         $NetworkOptimizationsFilePath = ".\ConfigurationFiles\LanManWorkstation.json"
         If (Test-Path $NetworkOptimizationsFilePath)
