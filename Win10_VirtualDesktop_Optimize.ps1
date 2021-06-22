@@ -264,84 +264,86 @@ PROCESS {
             Write-EventLog -EventId 30 -Message "File not found! -  $ScheduledTasksFilePath" -LogName 'Virtual Desktop Optimization' -Source 'ScheduledTasks' -EntryType Warning
         }
     }
-    #endregion
+  #endregion
 
     #region Customize Default User Profile
 
     # Apply appearance customizations to default user registry hive, then close hive file
-    If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
-    {
-        $DefaultUserSettingsFilePath = ".\ConfigurationFiles\DefaultUserSettings.json"
-        If (Test-Path $DefaultUserSettingsFilePath)
-        {
-            Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
-            Write-Host "[VDI Optimize] Set Default User Settings" -ForegroundColor Cyan
-            $UserSettings = (Get-Content $DefaultUserSettingsFilePath | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
-            If ($UserSettings.Count -gt 0)
-            {
-                Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                Write-Verbose "Processing Default User Settings (Registry Keys)"
-               # $RegDefault = "C:\Users\Default\NTUSER.DAT"
-#Start-Process reg-ArgumentList "LOAD HKLM\VDOT_TEMP  $RegDefault" -PassThru -Wait
-& REG LOAD "HKLM\VDOT_TEMP" "$Env:SystemDrive\Users\Default\NTUSER.DAT"
+    If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All") {
+        If (Test-Path .\ConfigurationFiles\DefaultUserSettings.json) {
+            Write-WVDLog -Message ("[VDI Optimize] Set Default User Settings") -Tag 'UserSettings' -Level Info -OutputToScreen
+            $UserSettings = (Get-Content .\ConfigurationFiles\DefaultUserSettings.json | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
+            If ($UserSettings.Count -gt 0) {
+                Write-WVDLog -Message "Processing Default User Settings (Registry Keys)" -Level Verbose -Tag "UserSettings"
 
+                Start-Process reg -ArgumentList "LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT" -PassThru -Wait
+                #& REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
 
-               
+                Foreach ($Item in $UserSettings) {
+                    If ($Item.PropertyType -eq "BINARY") { $Value = [byte[]]($Item.PropertyValue.Split(",")) }
+                    Else { $Value = $Item.PropertyValue }
 
-                Foreach ($Item in $UserSettings)
-                {
-                    If ($Item.PropertyType -eq "BINARY")
-                    {
-                        $Value = [byte[]]($Item.PropertyValue.Split(","))
+                    If (Test-Path -Path ("{0}" -f $Item.HivePath)) {
+                        Write-WVDLog -Message ("Found {0}\{1}" -f $Item.HivePath, $Item.KeyName) -Level Verbose -Tag "UserSettings"
+                        If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue) { Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force }
+                        Else { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null }
                     }
-                    Else
-                    {
-                        $Value = $Item.PropertyValue
-                    }
-
-                    If (Test-Path -Path ("{0}" -f $Item.HivePath))
-                    {
-                        Write-EventLog -EventId 40 -Message "Found $($Item.HivePath) - $($Item.KeyName)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information        
-                        Write-Verbose "Found $($Item.HivePath) - $($Item.KeyName)"
-                        If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue)
-                        {
-                            Write-EventLog -EventId 40 -Message "Set $($Item.HivePath) - $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                            Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force 
-                        }
-                        Else
-                        {
-                            Write-EventLog -EventId 40 -Message "New $($Item.HivePath) Name $($Item.KeyName) PropertyType $($Item.PropertyType) Value $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                            New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
-                        }
-                    }
-                    Else
-                    {
-                        Write-EventLog -EventId 40 -Message "Registry Path not found $($Item.HivePath)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
-                        Write-EventLog -EventId 40 -Message "Creating new Registry Key $($Item.HivePath)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
+                    Else {
+                        Write-WVDLog -Message ("Registry Path not found: {0}" -f $Item.HivePath) -Level Warning -Tag "UserSettings" -OutputToScreen
+                        Write-WVDLog -Message ("Creating new Registry Key") -Level Verbose -Tag "UserSettings","NewKey"
                         $newKey = New-Item -Path ("{0}" -f $Item.HivePath) -Force
-                        If (Test-Path -Path $newKey.PSPath)
-                        {
-                            New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
-                        }
-                        Else
-                        {
-                            Write-EventLog -EventId 140 -Message "Failed to create new Registry Key" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Error
-                        } 
+                        If (Test-Path -Path $newKey.PSPath) { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null}
+                        Else { Write-WVDLog -Message ("Failed to create new Registry key") -Level Error -OutputToScreen -Tag "UserSettings"} 
                     }
                 }
-#Start-Process reg-ArgumentList "UNLOAD HKLM\VDOT_TEMP" -PassThru -Wait
-& REG UNLOAD HKLM\VDOT_TEMP
-               
+                [GC]::Collect()
+                Start-Process reg -ArgumentList "UNLOAD HKLM\VDOT_TEMP" -PassThru -Wait
+                #& REG UNLOAD HKLM\VDOT_TEMP | Out-Null
             }
-            Else
-            {
-                Write-EventLog -EventId 40 -Message "No Default User Settings to set" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
-            }
+            Else { Write-WVDLog -Message ("No Default User Settings to set") -Level Warning -Tag "UserSettings" -OutputToScreen }
         }
-        Else
-        {
-            Write-EventLog -EventId 40 -Message "File not found: $DefaultUserSettingsFilePath" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
-        }    }
+        Else { Write-WVDLog -Message ("File not found: {0}\ConfigurationFiles\DefaultUserSettings.json" -f $WorkingLocation) -Level Warning -Tag 'UserSettings' -OutputToScreen }
+    }
+    #endregion
+
+    #region Disable Windows Traces
+    If ($Optimizations -contains "AutoLoggers" -or $Optimizations -contains "All") {
+        If (Test-Path .\ConfigurationFiles\Autologgers.Json) {
+            Write-WVDLog -Message ("[VDI Optimize] Disable Autologgers") -Level Info -Tag "AutoLoggers" -OutputToScreen
+            $DisableAutologgers = (Get-Content .\ConfigurationFiles\Autologgers.Json | ConvertFrom-Json).Where( { $_.Disabled -eq 'True' })
+            If ($DisableAutologgers.count -gt 0) {
+                Write-WVDLog -Message ("Processing Autologger Configuration File") -Level Verbose -Tag "AutoLoggers"
+                Foreach ($Item in $DisableAutologgers) {
+                    Write-WVDLog -Message ("Updating Registry Key for: {0}" -f $Item.KeyName) -Level Verbose -Tag "AutoLoggers"
+                    New-ItemProperty -Path ("{0}" -f $Item.KeyName) -Name "Start" -PropertyType "DWORD" -Value 0 -Force | Out-Null
+                }
+            }
+            Else { Write-WVDLog -Message ("No Autologgers found to disable") -Level Verbose -Tag "AutoLoggers" -OutputToScreen}
+        }
+        Else { Write-WVDLog -Message ("File not found: {0}\ConfigurationFiles\Autologgers.json" -f $WorkingLocation) -Level Warning -Tag "AutoLoggers" -OutputToScreen}
+    }
+    #endregion
+
+    #region Disable Services
+    If ($Optimizations -contains "Services" -or $Optimizations -contains "All") {
+        If (Test-Path .\ConfigurationFiles\Services.json) {
+            Write-WVDLog -Message ("[VDI Optimize] Disable Services") -Level Info -Tag "Services" -OutputToScreen
+            $ServicesToDisable = (Get-Content .\ConfigurationFiles\Services.json | ConvertFrom-Json ).Where( { $_.VDIState -eq 'Disabled' })
+
+            If ($ServicesToDisable.count -gt 0) {
+                Write-WVDLog -Message ("Processing Services Configuration File") -Level Verbose -Tag "Services"
+                Foreach ($Item in $ServicesToDisable) {
+                    Write-WVDLog -Message ("Attempting to Stop Service {0} - {1}" -f $Item.Name, $Item.Description) -Level Verbose -Tag "Services"
+                    try { Stop-Service $Item.Name -Force -ErrorAction SilentlyContinue }
+                    catch { Write-WVDLog -Message ("Failed to disabled Service: {0} - {1}" -f $Item.Name, $_.Exception.Message)  -Level Error -Tag "Services" }
+                    Write-WVDLog -Message ("Attempting to Disable Service {0} - {1}" -f $Item.Name, $Item.Description) -Level Verbose -Tag "Services"
+                    Set-Service $Item.Name -StartupType Disabled 
+                }
+            }  
+            Else { Write-WVDLog -Message ("No Services found to disable")  -Level Warning -Tag "Services" -OutputToScreen}
+        }
+        Else { Write-WVDLog -Message ("File not found: {0}\ConfigurationFiles\Services.json" -f $WorkingLocation)  -Level Warning -Tag "Services" -OutputToScreen }
+    }
     #endregion
 
     #region Disable Windows Traces
