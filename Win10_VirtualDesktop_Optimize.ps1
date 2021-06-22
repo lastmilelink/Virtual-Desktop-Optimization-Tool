@@ -265,15 +265,16 @@ PROCESS {
         }
     }
     #endregion
+    #endregion
     #region Customize Default User Profile
 
     # Apply appearance customizations to default user registry hive, then close hive file
     If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All") {
         If (Test-Path .\ConfigurationFiles\DefaultUserSettings.json) {
-            Write-WVDLog -Message ("[VDI Optimize] Set Default User Settings") -Tag 'UserSettings' -Level Info -OutputToScreen
+            Write-host "[VDI Optimize] Set Default User Settings"
             $UserSettings = (Get-Content .\ConfigurationFiles\DefaultUserSettings.json | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
             If ($UserSettings.Count -gt 0) {
-                Write-WVDLog -Message "Processing Default User Settings (Registry Keys)" -Level Verbose -Tag "UserSettings"
+                Write-host  "Processing Default User Settings (Registry Keys)" 
 
                 Start-Process reg -ArgumentList "LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT" -PassThru -Wait
                 #& REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
@@ -283,25 +284,26 @@ PROCESS {
                     Else { $Value = $Item.PropertyValue }
 
                     If (Test-Path -Path ("{0}" -f $Item.HivePath)) {
-                        Write-WVDLog -Message ("Found {0}\{1}" -f $Item.HivePath, $Item.KeyName) -Level Verbose -Tag "UserSettings"
+                        Write-host ("Found {0}\{1}" -f $Item.HivePath, $Item.KeyName) 
                         If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue) { Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force }
                         Else { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null }
                     }
                     Else {
-                        Write-WVDLog -Message ("Registry Path not found: {0}" -f $Item.HivePath) -Level Warning -Tag "UserSettings" -OutputToScreen
-                        Write-WVDLog -Message ("Creating new Registry Key") -Level Verbose -Tag "UserSettings","NewKey"
+                        Write-host ("Registry Path not found: {0}" -f $Item.HivePath) 
+                        Write-host ("Creating new Registry Key") 
                         $newKey = New-Item -Path ("{0}" -f $Item.HivePath) -Force
                         If (Test-Path -Path $newKey.PSPath) { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null}
-                        Else { Write-WVDLog -Message ("Failed to create new Registry key") -Level Error -OutputToScreen -Tag "UserSettings"} 
+                        Else { Write-host ("Failed to create new Registry key")} 
                     }
                 }
                 [GC]::Collect()
                 Start-Process reg -ArgumentList "UNLOAD HKLM\VDOT_TEMP" -PassThru -Wait
                 #& REG UNLOAD HKLM\VDOT_TEMP | Out-Null
             }
-            Else { Write-WVDLog -Message ("No Default User Settings to set") -Level Warning -Tag "UserSettings" -OutputToScreen }
+            Else { Write-host ("No Default User Settings to set") }
         }
-        Else { Write-WVDLog -Message ("File not found: {0}\ConfigurationFiles\DefaultUserSettings.json" -f $WorkingLocation) -Level Warning -Tag 'UserSettings' -OutputToScreen }
+        Else { Write-host ("File not found: {0}\ConfigurationFiles\DefaultUserSettings.json" -f $WorkingLocation)
+        }
     }
     #endregion
 
