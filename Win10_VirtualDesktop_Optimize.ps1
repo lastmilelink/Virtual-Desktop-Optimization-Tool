@@ -265,46 +265,86 @@ PROCESS {
         }
     }
     #endregion
-    #endregion
+ #endregion
+
     #region Customize Default User Profile
-
-    # Apply appearance customizations to default user registry hive, then close hive file
-    If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All") {
-        If (Test-Path .\ConfigurationFiles\DefaultUserSettings.json) {
-            Write-host "[VDI Optimize] Set Default User Settings"
+# Apply appearance customizations to default user registry hive, then close hive file
+    If ($Optimizations -contains "DefaultUserSettings" -or $Optimizations -contains "All")
+    {
+        If (Test-Path .\ConfigurationFiles\DefaultUserSettings.json)
+        {
+            Write-EventLog -EventId 40 -Message "Set Default User Settings" -LogName 'Virtual Desktop Optimization' -Source 'VDOT' -EntryType Information
+            Write-Host "[VDI Optimize] Set Default User Settings"
             $UserSettings = (Get-Content .\ConfigurationFiles\DefaultUserSettings.json | ConvertFrom-Json).Where( { $_.SetProperty -eq $true })
-            If ($UserSettings.Count -gt 0) {
-                Write-host  "Processing Default User Settings (Registry Keys)" 
-
+            If ($UserSettings.Count -gt 0)
+             {
+                Write-EventLog -EventId 40 -Message "Processing Default User Settings (Registry Keys)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
+                Write-Verbose "Processing Default User Settings (Registry Keys)"
+                Write-Host "LOADING DAT"
                 Start-Process reg -ArgumentList "LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT" -PassThru -Wait
                 #& REG LOAD HKLM\VDOT_TEMP C:\Users\Default\NTUSER.DAT | Out-Null
 
-                Foreach ($Item in $UserSettings) {
-                    If ($Item.PropertyType -eq "BINARY") { $Value = [byte[]]($Item.PropertyValue.Split(",")) }
-                    Else { $Value = $Item.PropertyValue }
-
-                    If (Test-Path -Path ("{0}" -f $Item.HivePath)) {
+                Foreach ($Item in $UserSettings) 
+                {
+                    If ($Item.PropertyType -eq "BINARY") 
+                    {
+                         $Value = [byte[]]($Item.PropertyValue.Split(","))
+                }
+                    Else 
+                    {
+                         $Value = $Item.PropertyValue
+                     }
+                    If (Test-Path -Path ("{0}" -f $Item.HivePath))
+                     {
                         Write-host ("Found {0}\{1}" -f $Item.HivePath, $Item.KeyName) 
-                        If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue) { Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force }
-                        Else { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null }
+                        Write-EventLog -EventId 40 -Message "Found $($Item.HivePath) - $($Item.KeyName)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information        
+                         If (Get-ItemProperty -Path ("{0}" -f $Item.HivePath) -ErrorAction SilentlyContinue)
+                         { 
+                            Write-EventLog -EventId 40 -Message "Set $($Item.HivePath) - $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
+                            Set-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -Value $Value -Force 
+                        }
+                        Else 
+                        {
+                            Write-EventLog -EventId 40 -Message "New $($Item.HivePath) Name $($Item.KeyName) PropertyType $($Item.PropertyType) Value $Value" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
+                             New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null 
+                        }
                     }
-                    Else {
+                    Else
+                    {
+                        Write-EventLog -EventId 40 -Message "Registry Path not found $($Item.HivePath)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
+                        Write-EventLog -EventId 40 -Message "Creating new Registry Key $($Item.HivePath)" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Information
                         Write-host ("Registry Path not found: {0}" -f $Item.HivePath) 
                         Write-host ("Creating new Registry Key") 
                         $newKey = New-Item -Path ("{0}" -f $Item.HivePath) -Force
-                        If (Test-Path -Path $newKey.PSPath) { New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null}
-                        Else { Write-host ("Failed to create new Registry key")} 
+                        If (Test-Path -Path $newKey.PSPath)
+                        {
+                            New-ItemProperty -Path ("{0}" -f $Item.HivePath) -Name $Item.KeyName -PropertyType $Item.PropertyType -Value $Value -Force | Out-Null
+                        }
+                    Else
+                     { 
+                        Write-EventLog -EventId 140 -Message "Failed to create new Registry Key" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Error
+                        Write-host ("Failed to create new Registry key")} 
                     }
                 }
+                Write-Host "Unloading DAT file"
                 [GC]::Collect()
                 Start-Process reg -ArgumentList "UNLOAD HKLM\VDOT_TEMP" -PassThru -Wait
                 #& REG UNLOAD HKLM\VDOT_TEMP | Out-Null
             }
-            Else { Write-host ("No Default User Settings to set") }
+            Else 
+            {
+            Write-EventLog -EventId 40 -Message "No Default User Settings to set" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
+            Write-host ("No Default User Settings to set") 
+            }
         }
-        Else { Write-host ("File not found: {0}\ConfigurationFiles\DefaultUserSettings.json" -f $WorkingLocation)
+        Else
+         { 
+            Write-EventLog -EventId 40 -Message "File not found: $DefaultUserSettingsFilePath" -LogName 'Virtual Desktop Optimization' -Source 'DefaultUserSettings' -EntryType Warning
+            Write-host ("File not found: {0}\ConfigurationFiles\DefaultUserSettings.json" -f $WorkingLocation)
         }
     }
+    #endregion
+
     #endregion
 
     #endregion
