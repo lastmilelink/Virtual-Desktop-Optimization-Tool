@@ -985,5 +985,27 @@
         "RegItemValueType": "DWord",
         "RegItemValue": "",
         "VDIState": "Enabled"
+    },
+{
+        "RegItemPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+        "RegItemValueName": "DeferQualityUpdates",
+        "RegItemValueType": "DWord",
+        "RegItemValue": "1",
+        "VDIState": "Enabled"
+    },
+    
+    {
+        "RegItemPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+        "RegItemValueName": "DeferQualityUpdatesPeriodInDays",
+        "RegItemValueType": "DWord",
+        "RegItemValue": "30",
+        "VDIState": "Enabled"
+    },
+{
+        "RegItemPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+        "RegItemValueName": "PauseQualityUpdatesStartTime",
+        "RegItemValueType": "String",
+        "RegItemValue": "2021-07-01",
+        "VDIState": "Enabled"
     }
 ]
